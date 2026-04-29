@@ -112,3 +112,4 @@
 /home/lima/Projetos .Net/schoolAPI/SchoolAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /home/lima/Projetos .Net/schoolAPI/SchoolAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /home/lima/Projetos .Net/schoolAPI/SchoolAPI/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/home/lima/Projetos .Net/schoolAPI/SchoolAPI/obj/Debug/net8.0/SchoolAPI.sourcelink.json
