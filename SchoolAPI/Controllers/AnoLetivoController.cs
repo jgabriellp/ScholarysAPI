@@ -7,7 +7,7 @@ namespace SchoolAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class AnoLetivoController : ControllerBase
 {
     private readonly AnoLetivoService _service;
@@ -25,6 +25,7 @@ public class AnoLetivoController : ControllerBase
     }
 
     [HttpGet("ativo")]
+    [Authorize]
     public async Task<IActionResult> GetAtivo()
     {
         var ano = await _service.GetAtivoAsync();

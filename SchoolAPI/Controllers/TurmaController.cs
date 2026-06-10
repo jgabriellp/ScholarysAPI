@@ -7,7 +7,7 @@ namespace SchoolAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,Diretor,Coordenador")]
+[Authorize(Roles = "Admin,Diretor,Coordenador,Professor")]
 public class TurmaController : ControllerBase
 {
     private readonly TurmaService _service;
@@ -28,6 +28,22 @@ public class TurmaController : ControllerBase
     public async Task<IActionResult> GetByAnoLetivo(int anoLetivoId)
     {
         var data = await _service.GetByAnoLetivoAsync(anoLetivoId);
+        return Ok(data);
+    }
+
+    [HttpGet("professor/{professorId}")]
+    [Authorize(Roles = "Admin,Diretor,Coordenador,Professor")]
+    public async Task<IActionResult> GetByProfessor(int professorId, [FromQuery] int? anoLetivoId)
+    {
+        var data = await _service.GetByProfessorAsync(professorId, anoLetivoId);
+        return Ok(data);
+    }
+
+    [HttpGet("professor/{professorId}/ano-letivo/{anoLetivoId}")]
+    [Authorize(Roles = "Admin,Diretor,Coordenador,Professor")]
+    public async Task<IActionResult> GetByProfessorEAnoLetivo(int professorId, int anoLetivoId)
+    {
+        var data = await _service.GetByProfessorAsync(professorId, anoLetivoId);
         return Ok(data);
     }
 

@@ -26,6 +26,12 @@ public class TurmaService
         return turmas.Select(Map);
     }
 
+    public async Task<IEnumerable<TurmaResponseDto>> GetByProfessorAsync(int professorId, int? anoLetivoId)
+    {
+        var turmas = await _repository.GetByProfessorAsync(professorId, anoLetivoId);
+        return turmas.Select(Map);
+    }
+
     public async Task<TurmaResponseDto?> GetByIdAsync(int id)
     {
         var turma = await _repository.GetByIdAsync(id);

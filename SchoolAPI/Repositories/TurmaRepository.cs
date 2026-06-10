@@ -37,6 +37,25 @@ public class TurmaRepository : ITurmaRepository
             .OrderBy(t => t.Nome)
             .ToListAsync();
 
+    public async Task<IEnumerable<Turma>> GetByProfessorAsync(int professorId, int? anoLetivoId)
+    {
+        var query = _context.TurmaDisciplinaProfessores
+            .Include(tdp => tdp.Turma)
+                .ThenInclude(t => t!.AnoLetivo)
+            .Where(tdp => tdp.ProfessorId == professorId && tdp.Turma!.Ativo);
+
+        if (anoLetivoId.HasValue)
+            query = query.Where(tdp => tdp.AnoLetivoId == anoLetivoId.Value);
+
+        var turmas = await query
+            .Select(tdp => tdp.Turma!)
+            .Distinct()
+            .OrderBy(t => t.Nome)
+            .ToListAsync();
+
+        return turmas;
+    }
+
     public async Task<Turma?> GetByIdAsync(int id)
         => await _context.Turmas
             .Include(t => t.AnoLetivo)

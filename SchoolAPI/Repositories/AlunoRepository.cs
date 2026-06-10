@@ -48,6 +48,13 @@ public class AlunoRepository : IAlunoRepository
             .Include(a => a.User)
             .FirstOrDefaultAsync(a => a.Id == id && a.Ativo);
 
+    public async Task<Aluno?> GetByUsuarioAsync(int userId)
+        => await _context.Alunos
+            .Include(a => a.Turma)
+            .Include(a => a.AnoLetivo)
+            .Include(a => a.User)
+            .FirstOrDefaultAsync(a => a.UserId == userId && a.Ativo);
+
     public async Task<Aluno> CreateAsync(Aluno aluno)
     {
         _context.Alunos.Add(aluno);

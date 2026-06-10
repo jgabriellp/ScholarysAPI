@@ -239,7 +239,7 @@ Desativa um usuário (soft delete).
 
 ### AnoLetivo
 
-> Todos os endpoints exigem role **Admin**.
+> Todos os endpoints exigem role **Admin**, exceto `GET /api/anoletivo/ativo`, que é acessível a qualquer usuário autenticado.
 
 #### `GET /api/anoletivo`
 
@@ -306,7 +306,9 @@ Mesmo body do POST.
 
 | Ação | Roles permitidas |
 |---|---|
-| GET | Admin, Diretor, Coordenador |
+| `GET /` e `GET /ano-letivo/{id}` | Admin, Diretor, Coordenador |
+| `GET /professor/{id}` | Admin, Diretor, Coordenador, Professor |
+| `GET /{id}` | Admin, Diretor, Coordenador |
 | POST, PUT, DELETE | Admin |
 
 #### `GET /api/turma`
@@ -339,6 +341,18 @@ Lista todas as turmas ativas com paginação.
 Lista todas as turmas de um determinado ano letivo.
 
 **Response `200`:** Array de turmas (mesmo formato acima, sem paginação).
+
+#### `GET /api/turma/professor/{professorId}`
+
+Lista as turmas únicas onde o professor possui vínculo via `TurmaDisciplinaProfessor`. Suporta filtro opcional por ano letivo.
+
+**Query params:**
+
+| Param | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `anoLetivoId` | int | Não | Filtra as turmas pelo ano letivo |
+
+**Response `200`:** Array de turmas (mesmo formato de `GET /api/turma`, sem paginação).
 
 #### `GET /api/turma/{id}`
 
@@ -431,6 +445,7 @@ Soft delete (marca `ativo = false`).
 | `GET /` (todos) | Admin, Diretor, Coordenador |
 | `GET /turma/{id}` | Admin, Diretor, Coordenador, Professor |
 | `GET /{id}` | Qualquer autenticado |
+| `GET /usuario/{userId}` | Admin, Diretor, Coordenador (qualquer); Aluno (somente o próprio) |
 | POST, PUT, DELETE | Admin |
 
 #### `GET /api/aluno`
@@ -467,6 +482,14 @@ Lista todos os alunos ativos com paginação.
 Lista todos os alunos ativos de uma turma, ordenados por número de chamada.
 
 **Response `200`:** Array de alunos (mesmo formato, sem paginação).
+
+#### `GET /api/aluno/usuario/{userId}`
+
+Retorna o registro de aluno vinculado a um usuário do sistema. Admin, Diretor e Coordenador podem consultar qualquer `userId`; um Aluno autenticado só pode consultar o próprio `userId` (retorna `403` caso tente acessar outro).
+
+**Response `200`:** Objeto do aluno (mesmo formato de `GET /api/aluno/{id}`).  
+**Response `403`:** Acesso negado (aluno tentando acessar registro de outro usuário).  
+**Response `404`:** Nenhum aluno vinculado a esse usuário.
 
 #### `GET /api/aluno/{id}`
 

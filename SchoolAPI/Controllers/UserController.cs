@@ -7,7 +7,7 @@ namespace SchoolAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;

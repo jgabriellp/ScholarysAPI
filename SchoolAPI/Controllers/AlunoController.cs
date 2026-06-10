@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.DTOs.Aluno;
@@ -31,6 +32,21 @@ public class AlunoController : ControllerBase
     {
         var data = await _service.GetByTurmaAsync(turmaId);
         return Ok(data);
+    }
+
+    [HttpGet("usuario/{userId}")]
+    public async Task<IActionResult> GetByUsuario(int userId)
+    {
+        var callerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var callerRole = User.FindFirstValue(ClaimTypes.Role);
+        var isAdmin = callerRole is "Admin" or "Diretor" or "Coordenador";
+
+        if (!isAdmin && callerId != userId.ToString())
+            return Forbid();
+
+        var aluno = await _service.GetByUsuarioAsync(userId);
+        if (aluno == null) return NotFound();
+        return Ok(aluno);
     }
 
     [HttpGet("{id}")]

@@ -33,6 +33,13 @@ public class AlunoService
         return Map(aluno);
     }
 
+    public async Task<AlunoResponseDto?> GetByUsuarioAsync(int userId)
+    {
+        var aluno = await _repository.GetByUsuarioAsync(userId);
+        if (aluno == null) return null;
+        return Map(aluno);
+    }
+
     public async Task<AlunoResponseDto> CreateAsync(AlunoRequestDto dto)
     {
         var aluno = new Aluno
