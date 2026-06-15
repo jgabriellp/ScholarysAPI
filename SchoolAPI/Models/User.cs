@@ -12,5 +12,5 @@ public class User
     public bool Ativo { get; set; } = true;
 
     // Navegação
-    public Aluno? Aluno { get; set; }
+    public ICollection<Aluno> Alunos { get; set; } = [];
 }

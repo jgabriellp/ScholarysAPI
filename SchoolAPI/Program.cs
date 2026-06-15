@@ -55,6 +55,12 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<DashboardService>();
 
+builder.Services.AddScoped<IDiaLetivoRepository, DiaLetivoRepository>();
+builder.Services.AddScoped<DiaLetivoService>();
+
+builder.Services.AddScoped<IRelatoAulaRepository, RelatoAulaRepository>();
+builder.Services.AddScoped<RelatoAulaService>();
+
 builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

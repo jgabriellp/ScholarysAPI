@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolAPI.Data;
@@ -11,9 +12,11 @@ using SchoolAPI.Data;
 namespace SchoolAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260611110230_CascadeDeleteTurma_FixAlunoUserId")]
+    partial class CascadeDeleteTurma_FixAlunoUserId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +62,7 @@ namespace SchoolAPI.Migrations
                     b.HasIndex("TurmaId");
 
                     b.HasIndex("UserId", "AnoLetivoId")
-                        .IsUnique()
-                        .HasFilter("\"Ativo\" = true");
+                        .IsUnique();
 
                     b.ToTable("Alunos");
                 });
@@ -118,28 +120,6 @@ namespace SchoolAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("DesenvolvimentosMaternal");
-                });
-
-            modelBuilder.Entity("SchoolAPI.Models.DiaLetivo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnoLetivoId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateOnly>("Data")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnoLetivoId", "Data")
-                        .IsUnique();
-
-                    b.ToTable("DiasLetivos");
                 });
 
             modelBuilder.Entity("SchoolAPI.Models.Disciplina", b =>
@@ -253,39 +233,6 @@ namespace SchoolAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Notas");
-                });
-
-            modelBuilder.Entity("SchoolAPI.Models.RelatoAula", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DiaLetivoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProfessorId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TurmaId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProfessorId");
-
-                    b.HasIndex("TurmaId");
-
-                    b.HasIndex("DiaLetivoId", "TurmaId", "ProfessorId")
-                        .IsUnique();
-
-                    b.ToTable("RelatosAula");
                 });
 
             modelBuilder.Entity("SchoolAPI.Models.Turma", b =>
@@ -437,17 +384,6 @@ namespace SchoolAPI.Migrations
                     b.Navigation("Turma");
                 });
 
-            modelBuilder.Entity("SchoolAPI.Models.DiaLetivo", b =>
-                {
-                    b.HasOne("SchoolAPI.Models.AnoLetivo", "AnoLetivo")
-                        .WithMany()
-                        .HasForeignKey("AnoLetivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AnoLetivo");
-                });
-
             modelBuilder.Entity("SchoolAPI.Models.Frequencia", b =>
                 {
                     b.HasOne("SchoolAPI.Models.AnoLetivo", "AnoLetivo")
@@ -521,33 +457,6 @@ namespace SchoolAPI.Migrations
                     b.Navigation("Turma");
                 });
 
-            modelBuilder.Entity("SchoolAPI.Models.RelatoAula", b =>
-                {
-                    b.HasOne("SchoolAPI.Models.DiaLetivo", "DiaLetivo")
-                        .WithMany("Relatos")
-                        .HasForeignKey("DiaLetivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolAPI.Models.User", "Professor")
-                        .WithMany()
-                        .HasForeignKey("ProfessorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolAPI.Models.Turma", "Turma")
-                        .WithMany()
-                        .HasForeignKey("TurmaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DiaLetivo");
-
-                    b.Navigation("Professor");
-
-                    b.Navigation("Turma");
-                });
-
             modelBuilder.Entity("SchoolAPI.Models.Turma", b =>
                 {
                     b.HasOne("SchoolAPI.Models.AnoLetivo", "AnoLetivo")
@@ -608,11 +517,6 @@ namespace SchoolAPI.Migrations
                     b.Navigation("Alunos");
 
                     b.Navigation("Turmas");
-                });
-
-            modelBuilder.Entity("SchoolAPI.Models.DiaLetivo", b =>
-                {
-                    b.Navigation("Relatos");
                 });
 
             modelBuilder.Entity("SchoolAPI.Models.Disciplina", b =>

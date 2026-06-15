@@ -77,6 +77,18 @@ public class TurmaRepository : ITurmaRepository
 
     public async Task DeleteAsync(Turma turma)
     {
+        var alunos = await _context.Alunos
+            .Where(a => a.TurmaId == turma.Id && a.Ativo)
+            .ToListAsync();
+        foreach (var aluno in alunos)
+            aluno.Ativo = false;
+        _context.Alunos.UpdateRange(alunos);
+
+        var vinculos = await _context.TurmaDisciplinaProfessores
+            .Where(tdp => tdp.TurmaId == turma.Id)
+            .ToListAsync();
+        _context.TurmaDisciplinaProfessores.RemoveRange(vinculos);
+
         turma.Ativo = false;
         _context.Turmas.Update(turma);
         await _context.SaveChangesAsync();

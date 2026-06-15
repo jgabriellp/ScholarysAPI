@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<FrequenciaAluno> FrequenciaAlunos => Set<FrequenciaAluno>();
     public DbSet<Nota> Notas => Set<Nota>();
     public DbSet<DesenvolvimentoMaternal> DesenvolvimentosMaternal => Set<DesenvolvimentoMaternal>();
+    public DbSet<DiaLetivo> DiasLetivos => Set<DiaLetivo>();
+    public DbSet<RelatoAula> RelatosAula => Set<RelatoAula>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,12 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Turma>()
             .Property(t => t.Segmento)
             .HasConversion<string>();
+
+        // Índice único parcial: um usuário não pode ter dois alunos ativos no mesmo ano letivo
+        modelBuilder.Entity<Aluno>()
+            .HasIndex(a => new { a.UserId, a.AnoLetivoId })
+            .IsUnique()
+            .HasFilter("\"Ativo\" = true");
 
         // Índice único: um professor não pode ter a mesma disciplina na mesma turma/ano
         modelBuilder.Entity<TurmaDisciplinaProfessor>()
@@ -54,6 +62,16 @@ public class AppDbContext : DbContext
         // Índice único: desenvolvimento por aluno/bimestre/ano
         modelBuilder.Entity<DesenvolvimentoMaternal>()
             .HasIndex(d => new { d.AlunoId, d.Bimestre, d.AnoLetivoId })
+            .IsUnique();
+
+        // Índice único: um dia letivo por data/ano
+        modelBuilder.Entity<DiaLetivo>()
+            .HasIndex(d => new { d.AnoLetivoId, d.Data })
+            .IsUnique();
+
+        // Índice único: um relato por professor/turma/dia
+        modelBuilder.Entity<RelatoAula>()
+            .HasIndex(r => new { r.DiaLetivoId, r.TurmaId, r.ProfessorId })
             .IsUnique();
     }
 }
