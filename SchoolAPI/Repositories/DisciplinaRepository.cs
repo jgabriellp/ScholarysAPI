@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolAPI.Data;
 using SchoolAPI.Models;
+using SchoolAPI.Models.Enum;
 using SchoolAPI.Repositories.Interfaces;
 
 namespace SchoolAPI.Repositories;
@@ -14,9 +15,13 @@ public class DisciplinaRepository : IDisciplinaRepository
         _context = context;
     }
 
-    public async Task<(IEnumerable<Disciplina> Data, int Total)> GetAllAsync(int page, int pageSize)
+    public async Task<(IEnumerable<Disciplina> Data, int Total)> GetAllAsync(int page, int pageSize, SegmentoEnum? segmento = null)
     {
         var query = _context.Disciplinas.Where(d => d.Ativo);
+
+        if (segmento.HasValue)
+            query = query.Where(d => d.Segmento == segmento.Value);
+
         var total = await query.CountAsync();
         var data = await query
             .OrderBy(d => d.Nome)

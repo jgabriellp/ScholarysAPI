@@ -18,7 +18,7 @@ public class TurmaDisciplinaProfessorController : ControllerBase
     }
 
     [HttpGet("turma/{turmaId}")]
-    [Authorize(Roles = "Admin,Diretor,Coordenador")]
+    [Authorize(Roles = "Admin,Diretor,Coordenador,Professor")]
     public async Task<IActionResult> GetByTurma(int turmaId)
     {
         var data = await _service.GetByTurmaAsync(turmaId);

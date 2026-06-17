@@ -3,7 +3,8 @@ namespace SchoolAPI.DTOs.Frequencia;
 public record FrequenciaAlunoResponseDto(
     int AlunoId,
     string AlunoNome,
-    bool Presente
+    bool Presente,
+    string? Observacao
 );
 
 public record FrequenciaResponseDto(

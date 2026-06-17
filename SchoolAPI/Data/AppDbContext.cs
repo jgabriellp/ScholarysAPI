@@ -38,6 +38,10 @@ public class AppDbContext : DbContext
             .Property(t => t.Segmento)
             .HasConversion<string>();
 
+        modelBuilder.Entity<Disciplina>()
+            .Property(d => d.Segmento)
+            .HasConversion<string>();
+
         // Índice único parcial: um usuário não pode ter dois alunos ativos no mesmo ano letivo
         modelBuilder.Entity<Aluno>()
             .HasIndex(a => new { a.UserId, a.AnoLetivoId })

@@ -1,10 +1,11 @@
 using SchoolAPI.Models;
+using SchoolAPI.Models.Enum;
 
 namespace SchoolAPI.Repositories.Interfaces;
 
 public interface IDisciplinaRepository
 {
-    Task<(IEnumerable<Disciplina> Data, int Total)> GetAllAsync(int page, int pageSize);
+    Task<(IEnumerable<Disciplina> Data, int Total)> GetAllAsync(int page, int pageSize, SegmentoEnum? segmento = null);
     Task<Disciplina?> GetByIdAsync(int id);
     Task<Disciplina> CreateAsync(Disciplina disciplina);
     Task<Disciplina> UpdateAsync(Disciplina disciplina);

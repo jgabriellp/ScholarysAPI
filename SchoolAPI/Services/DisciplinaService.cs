@@ -1,5 +1,6 @@
 using SchoolAPI.DTOs.Disciplina;
 using SchoolAPI.Models;
+using SchoolAPI.Models.Enum;
 using SchoolAPI.Repositories.Interfaces;
 
 namespace SchoolAPI.Services;
@@ -13,10 +14,10 @@ public class DisciplinaService
         _repository = repository;
     }
 
-    public async Task<(IEnumerable<DisciplinaResponseDto> Data, int Total)> GetAllAsync(int page, int pageSize)
+    public async Task<(IEnumerable<DisciplinaResponseDto> Data, int Total)> GetAllAsync(int page, int pageSize, SegmentoEnum? segmento)
     {
-        var (disciplinas, total) = await _repository.GetAllAsync(page, pageSize);
-        var data = disciplinas.Select(d => new DisciplinaResponseDto(d.Id, d.Nome, d.Ativo));
+        var (disciplinas, total) = await _repository.GetAllAsync(page, pageSize, segmento);
+        var data = disciplinas.Select(Map);
         return (data, total);
     }
 
@@ -24,7 +25,7 @@ public class DisciplinaService
     {
         var disciplina = await _repository.GetByIdAsync(id);
         if (disciplina == null) return null;
-        return new DisciplinaResponseDto(disciplina.Id, disciplina.Nome, disciplina.Ativo);
+        return Map(disciplina);
     }
 
     public async Task<DisciplinaResponseDto> CreateAsync(DisciplinaRequestDto dto)
@@ -32,11 +33,12 @@ public class DisciplinaService
         var disciplina = new Disciplina
         {
             Nome = dto.Nome,
+            Segmento = dto.Segmento,
             Ativo = true
         };
 
         var created = await _repository.CreateAsync(disciplina);
-        return new DisciplinaResponseDto(created.Id, created.Nome, created.Ativo);
+        return Map(created);
     }
 
     public async Task<DisciplinaResponseDto?> UpdateAsync(int id, DisciplinaRequestDto dto)
@@ -45,10 +47,13 @@ public class DisciplinaService
         if (disciplina == null) return null;
 
         disciplina.Nome = dto.Nome;
+        disciplina.Segmento = dto.Segmento;
 
         var updated = await _repository.UpdateAsync(disciplina);
-        return new DisciplinaResponseDto(updated.Id, updated.Nome, updated.Ativo);
+        return Map(updated);
     }
+
+    private static DisciplinaResponseDto Map(Disciplina d) => new(d.Id, d.Nome, d.Segmento, d.Ativo);
 
     public async Task<bool> DeleteAsync(int id)
     {

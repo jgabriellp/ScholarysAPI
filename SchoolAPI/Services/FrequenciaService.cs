@@ -44,12 +44,16 @@ public class FrequenciaService
             {
                 var fa = existente.FrequenciaAlunos.FirstOrDefault(x => x.AlunoId == item.AlunoId);
                 if (fa != null)
+                {
                     fa.Presente = item.Presente;
+                    fa.Observacao = item.Observacao;
+                }
                 else
                     existente.FrequenciaAlunos.Add(new FrequenciaAluno
                     {
                         AlunoId = item.AlunoId,
-                        Presente = item.Presente
+                        Presente = item.Presente,
+                        Observacao = item.Observacao
                     });
             }
 
@@ -66,7 +70,8 @@ public class FrequenciaService
             FrequenciaAlunos = dto.Alunos.Select(a => new FrequenciaAluno
             {
                 AlunoId = a.AlunoId,
-                Presente = a.Presente
+                Presente = a.Presente,
+                Observacao = a.Observacao
             }).ToList()
         };
 
@@ -95,7 +100,8 @@ public class FrequenciaService
         f.FrequenciaAlunos.Select(fa => new FrequenciaAlunoResponseDto(
             fa.AlunoId,
             fa.Aluno?.Nome ?? "",
-            fa.Presente
+            fa.Presente,
+            fa.Observacao
         )).ToList()
     );
 }

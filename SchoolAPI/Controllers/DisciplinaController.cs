@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.DTOs.Disciplina;
+using SchoolAPI.Models.Enum;
 using SchoolAPI.Services;
 
 namespace SchoolAPI.Controllers;
@@ -18,9 +19,9 @@ public class DisciplinaController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] SegmentoEnum? segmento = null)
     {
-        var (data, total) = await _service.GetAllAsync(page, pageSize);
+        var (data, total) = await _service.GetAllAsync(page, pageSize, segmento);
         return Ok(new { data, total, page, pageSize });
     }
 

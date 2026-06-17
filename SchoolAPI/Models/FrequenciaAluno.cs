@@ -4,6 +4,7 @@ public class FrequenciaAluno
 {
     public int Id { get; set; }
     public bool Presente { get; set; }
+    public string? Observacao { get; set; }
 
     // FKs
     public int FrequenciaId { get; set; }
