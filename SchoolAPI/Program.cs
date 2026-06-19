@@ -111,6 +111,13 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Aplica migrations automaticamente ao subir (necessário no Railway)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -122,4 +129,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+// Railway injeta a variável PORT; fallback para 8080 em outros ambientes
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
