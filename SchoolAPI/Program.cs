@@ -20,8 +20,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<DiarioService>();
 
@@ -111,7 +114,6 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Aplica migrations automaticamente ao subir (necessário no Railway)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -129,6 +131,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Railway injeta a variável PORT; fallback para 8080 em outros ambientes
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Run($"http://0.0.0.0:{port}");
+app.Run();
