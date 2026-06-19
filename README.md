@@ -23,6 +23,8 @@ API REST para gestão escolar com suporte a dois segmentos: **Maternal** e **Fun
   - [Nota](#nota)
   - [DesenvolvimentoMaternal](#desenvolvimentomaternal)
   - [Diario](#diario)
+  - [DiaLetivo](#diaLetivo)
+  - [RelatoAula](#relatoAula)
 - [Regras de negócio](#regras-de-negócio)
 
 ---
@@ -396,14 +398,20 @@ Soft delete (marca `ativo = false`).
 
 #### `GET /api/disciplina`
 
-**Query params:** `page`, `pageSize`
+**Query params:**
+
+| Param | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `page` | int | 1 | Página atual |
+| `pageSize` | int | 10 | Itens por página |
+| `segmento` | string | — | Filtra por segmento: `Maternal` ou `Fundamental` |
 
 **Response `200`:**
 ```json
 {
   "data": [
-    { "id": 1, "nome": "Matemática", "ativo": true },
-    { "id": 2, "nome": "Português", "ativo": true }
+    { "id": 1, "nome": "Matemática", "segmento": 1, "ativo": true },
+    { "id": 2, "nome": "Português", "segmento": 1, "ativo": true }
   ],
   "total": 2,
   "page": 1,
@@ -411,20 +419,22 @@ Soft delete (marca `ativo = false`).
 }
 ```
 
+> `segmento`: `0` = Maternal, `1` = Fundamental
+
 #### `GET /api/disciplina/{id}`
 
-**Response `200`:** `{ "id": 1, "nome": "Matemática", "ativo": true }`  
+**Response `200`:** `{ "id": 1, "nome": "Matemática", "segmento": 1, "ativo": true }`  
 **Response `404`:** Não encontrado.
 
 #### `POST /api/disciplina`
 
-**Request body:** `{ "nome": "Matemática" }`
+**Request body:** `{ "nome": "Matemática", "segmento": 1 }`
 
-**Response `201`:** `{ "id": 1, "nome": "Matemática", "ativo": true }`
+**Response `201`:** `{ "id": 1, "nome": "Matemática", "segmento": 1, "ativo": true }`
 
 #### `PUT /api/disciplina/{id}`
 
-**Request body:** `{ "nome": "Matemática" }`
+**Request body:** `{ "nome": "Matemática", "segmento": 1 }`
 
 **Response `200`:** Objeto atualizado.  
 **Response `404`:** Não encontrado.
@@ -620,7 +630,7 @@ Lista todas as frequências de uma turma no ano letivo, ordenadas por data.
     "turmaId": 2,
     "data": "2026-04-27",
     "alunos": [
-      { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": true }
+      { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": true, "observacao": null }
     ]
   },
   {
@@ -628,7 +638,7 @@ Lista todas as frequências de uma turma no ano letivo, ordenadas por data.
     "turmaId": 2,
     "data": "2026-04-28",
     "alunos": [
-      { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": false }
+      { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": false, "observacao": "Atestado médico apresentado." }
     ]
   }
 ]
@@ -674,7 +684,7 @@ Lança ou atualiza a frequência de uma turma em uma data. Se a data já tiver r
   "data": "2026-04-27",
   "alunos": [
     { "alunoId": 2, "presente": true },
-    { "alunoId": 3, "presente": false }
+    { "alunoId": 3, "presente": false, "observacao": "Atestado médico apresentado." }
   ]
 }
 ```
@@ -686,8 +696,8 @@ Lança ou atualiza a frequência de uma turma em uma data. Se a data já tiver r
   "turmaId": 2,
   "data": "2026-04-27",
   "alunos": [
-    { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": true },
-    { "alunoId": 3, "alunoNome": "Ana Costa", "presente": false }
+    { "alunoId": 2, "alunoNome": "Pedro Lima", "presente": true, "observacao": null },
+    { "alunoId": 3, "alunoNome": "Ana Costa", "presente": false, "observacao": "Atestado médico apresentado." }
   ]
 }
 ```
@@ -1019,6 +1029,102 @@ Retorna o diário de um aluno do segmento **Fundamental**.
 
 ---
 
+### DiaLetivo
+
+Calendário de dias letivos do ano. Os dias são compartilhados por todas as turmas do mesmo ano letivo.
+
+#### Permissões por ação
+
+| Ação | Roles permitidas |
+|---|---|
+| `GET /ano-letivo/{id}` | Qualquer autenticado |
+| `POST /lote` | Admin |
+| `DELETE /{id}` | Admin |
+
+#### `GET /api/diaLetivo/ano-letivo/{anoLetivoId}`
+
+Lista todos os dias letivos de um ano, ordenados por data.
+
+**Response `200`:**
+```json
+[
+  { "id": 1, "anoLetivoId": 1, "anoLetivoAno": 2026, "data": "2026-02-03" },
+  { "id": 2, "anoLetivoId": 1, "anoLetivoAno": 2026, "data": "2026-02-04" }
+]
+```
+
+#### `POST /api/diaLetivo/lote`
+
+Salva um conjunto de datas de uma vez (envio do calendário pelo front). Datas já existentes para o mesmo ano letivo são ignoradas automaticamente.
+
+**Request body:**
+```json
+{
+  "anoLetivoId": 1,
+  "datas": ["2026-02-03", "2026-02-04", "2026-02-05"]
+}
+```
+
+**Response `200`:** Array com as datas efetivamente criadas (as já existentes não são retornadas).
+
+#### `DELETE /api/diaLetivo/{id}`
+
+Remove um dia letivo. Dias com relatos associados serão bloqueados pelo banco.
+
+**Response `204`:** Sem conteúdo.  
+**Response `404`:** Não encontrado.
+
+---
+
+### RelatoAula
+
+Relato de texto livre que o professor registra para uma turma em um dia letivo específico. Faz **upsert**: se já existe relato para a mesma combinação dia + turma + professor, atualiza o texto.
+
+#### Permissões por ação
+
+| Ação | Roles permitidas |
+|---|---|
+| `GET /turma/.../ano/...` | Qualquer autenticado |
+| `POST` (upsert) | Admin, Professor |
+
+#### `GET /api/relatoAula/turma/{turmaId}/ano/{anoLetivoId}`
+
+Lista todos os relatos de uma turma em um ano letivo, ordenados por data.
+
+**Response `200`:**
+```json
+[
+  {
+    "id": 1,
+    "diaLetivoId": 1,
+    "data": "2026-02-03",
+    "turmaId": 2,
+    "turmaNome": "1o Ano A",
+    "professorId": 3,
+    "professorNome": "Prof. João",
+    "descricao": "Trabalhamos adição e subtração com material concreto."
+  }
+]
+```
+
+#### `POST /api/relatoAula`
+
+Cria ou atualiza o relato do professor para uma turma em um dia letivo.
+
+**Request body:**
+```json
+{
+  "diaLetivoId": 1,
+  "turmaId": 2,
+  "professorId": 3,
+  "descricao": "Trabalhamos adição e subtração com material concreto."
+}
+```
+
+**Response `200`:** Objeto do relato salvo.
+
+---
+
 ## Regras de negócio
 
 ### Fluxo de cadastro recomendado
@@ -1032,9 +1138,11 @@ A ordem abaixo garante que as dependências existam antes de cada cadastro:
 4. User          → criar usuários (professores, alunos)
 5. Aluno         → vinculado a Turma + AnoLetivo + User
 6. TurmaDisciplinaProfessor → vínculo turma + disciplina + professor + ano
-7. Frequencia    → lançamento diário
-8. Nota          → lançamento por unidade
-9. DesenvolvimentoMaternal → somente para turmas Maternal
+7. DiaLetivo     → calendário de dias letivos do ano (POST /lote)
+8. Frequencia    → lançamento diário
+9. Nota          → lançamento por unidade
+10. DesenvolvimentoMaternal → somente para turmas Maternal
+11. RelatoAula   → relato do professor por turma e dia letivo
 ```
 
 ### Restrições de unicidade
@@ -1045,6 +1153,8 @@ A ordem abaixo garante que as dependências existam antes de cada cadastro:
 | `Frequencia` | `(TurmaId, Data)` |
 | `Nota` | `(AlunoId, DisciplinaId, Unidade, AnoLetivoId)` |
 | `DesenvolvimentoMaternal` | `(AlunoId, Bimestre, AnoLetivoId)` |
+| `DiaLetivo` | `(AnoLetivoId, Data)` |
+| `RelatoAula` | `(DiaLetivoId, TurmaId, ProfessorId)` |
 
 ### Upsert automático
 
@@ -1053,6 +1163,7 @@ Os seguintes endpoints fazem upsert em vez de retornar erro ao duplicar:
 - `POST /api/frequencia` — se já existe frequência para turma + data, atualiza as presenças
 - `POST /api/nota` — se já existe nota para aluno + disciplina + unidade + ano, atualiza o valor
 - `POST /api/desenvolvimentomaternal` — se já existe registro para aluno + bimestre + ano, atualiza a descrição
+- `POST /api/relatoAula` — se já existe relato para dia + turma + professor, atualiza o texto
 
 ### Soft delete
 
