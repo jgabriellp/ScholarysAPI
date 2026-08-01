@@ -1,5 +1,6 @@
 using SchoolAPI.DTOs.DiaLetivo;
 using SchoolAPI.Models;
+using SchoolAPI.Models.Enum;
 using SchoolAPI.Repositories.Interfaces;
 
 namespace SchoolAPI.Services;
@@ -13,17 +14,21 @@ public class DiaLetivoService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<DiaLetivoResponseDto>> GetByAnoLetivoAsync(int anoLetivoId)
+    public async Task<IEnumerable<DiaLetivoResponseDto>> GetByAnoLetivoAsync(int anoLetivoId, SegmentoEnum? segmento = null)
     {
-        var dias = await _repository.GetByAnoLetivoAsync(anoLetivoId);
+        var dias = await _repository.GetByAnoLetivoAsync(anoLetivoId, segmento);
         return dias.Select(Map);
     }
 
     public async Task<IEnumerable<DiaLetivoResponseDto>> CreateLoteAsync(DiaLetivoLoteRequestDto dto)
     {
+        if (!Enum.IsDefined(typeof(SegmentoEnum), dto.Segmento))
+            throw new ArgumentException("Segmento inválido.");
+
         var dias = dto.Datas.Select(data => new DiaLetivo
         {
             AnoLetivoId = dto.AnoLetivoId,
+            Segmento = dto.Segmento,
             Data = data
         });
 
@@ -44,6 +49,7 @@ public class DiaLetivoService
         d.Id,
         d.AnoLetivoId,
         d.AnoLetivo?.Ano ?? 0,
-        d.Data
+        d.Data,
+        d.Segmento
     );
 }

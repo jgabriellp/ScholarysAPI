@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.DTOs.DiaLetivo;
+using SchoolAPI.Models.Enum;
 using SchoolAPI.Services;
 
 namespace SchoolAPI.Controllers;
@@ -18,9 +19,9 @@ public class DiaLetivoController : ControllerBase
     }
 
     [HttpGet("ano-letivo/{anoLetivoId}")]
-    public async Task<IActionResult> GetByAnoLetivo(int anoLetivoId)
+    public async Task<IActionResult> GetByAnoLetivo(int anoLetivoId, [FromQuery] SegmentoEnum? segmento = null)
     {
-        var data = await _service.GetByAnoLetivoAsync(anoLetivoId);
+        var data = await _service.GetByAnoLetivoAsync(anoLetivoId, segmento);
         return Ok(data);
     }
 
@@ -28,8 +29,15 @@ public class DiaLetivoController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateLote([FromBody] DiaLetivoLoteRequestDto dto)
     {
-        var criados = await _service.CreateLoteAsync(dto);
-        return Ok(criados);
+        try
+        {
+            var criados = await _service.CreateLoteAsync(dto);
+            return Ok(criados);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]

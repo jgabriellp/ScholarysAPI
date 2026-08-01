@@ -28,7 +28,14 @@ public class RelatoAulaController : ControllerBase
     [Authorize(Roles = "Admin,Professor")]
     public async Task<IActionResult> Upsert([FromBody] RelatoAulaRequestDto dto)
     {
-        var result = await _service.UpsertAsync(dto);
-        return Ok(result);
+        try
+        {
+            var result = await _service.UpsertAsync(dto);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

@@ -7,10 +7,17 @@ namespace SchoolAPI.Services;
 public class RelatoAulaService
 {
     private readonly IRelatoAulaRepository _repository;
+    private readonly IDiaLetivoRepository _diaLetivoRepository;
+    private readonly ITurmaRepository _turmaRepository;
 
-    public RelatoAulaService(IRelatoAulaRepository repository)
+    public RelatoAulaService(
+        IRelatoAulaRepository repository,
+        IDiaLetivoRepository diaLetivoRepository,
+        ITurmaRepository turmaRepository)
     {
         _repository = repository;
+        _diaLetivoRepository = diaLetivoRepository;
+        _turmaRepository = turmaRepository;
     }
 
     public async Task<IEnumerable<RelatoAulaResponseDto>> GetByTurmaEAnoAsync(int turmaId, int anoLetivoId)
@@ -21,6 +28,16 @@ public class RelatoAulaService
 
     public async Task<RelatoAulaResponseDto> UpsertAsync(RelatoAulaRequestDto dto)
     {
+        var diaLetivo = await _diaLetivoRepository.GetByIdAsync(dto.DiaLetivoId)
+            ?? throw new ArgumentException("Dia letivo não encontrado.");
+
+        var turma = await _turmaRepository.GetByIdAsync(dto.TurmaId)
+            ?? throw new ArgumentException("Turma não encontrada.");
+
+        if (turma.Segmento != diaLetivo.Segmento)
+            throw new ArgumentException(
+                $"O dia letivo selecionado pertence ao segmento {diaLetivo.Segmento}, incompatível com o segmento {turma.Segmento} da turma.");
+
         var existente = await _repository.GetByDiaETurmaEProfessorAsync(dto.DiaLetivoId, dto.TurmaId, dto.ProfessorId);
 
         if (existente != null)

@@ -1,9 +1,12 @@
+using SchoolAPI.Models.Enum;
+
 namespace SchoolAPI.Models;
 
 public class DiaLetivo
 {
     public int Id { get; set; }
     public DateOnly Data { get; set; }
+    public SegmentoEnum Segmento { get; set; }
 
     public int AnoLetivoId { get; set; }
     public AnoLetivo AnoLetivo { get; set; } = null!;

@@ -42,6 +42,10 @@ public class AppDbContext : DbContext
             .Property(d => d.Segmento)
             .HasConversion<string>();
 
+        modelBuilder.Entity<DiaLetivo>()
+            .Property(d => d.Segmento)
+            .HasConversion<string>();
+
         // Índice único parcial: um usuário não pode ter dois alunos ativos no mesmo ano letivo
         modelBuilder.Entity<Aluno>()
             .HasIndex(a => new { a.UserId, a.AnoLetivoId })
@@ -68,9 +72,9 @@ public class AppDbContext : DbContext
             .HasIndex(d => new { d.AlunoId, d.Bimestre, d.AnoLetivoId })
             .IsUnique();
 
-        // Índice único: um dia letivo por data/ano
+        // Índice único: um dia letivo por data/ano/segmento
         modelBuilder.Entity<DiaLetivo>()
-            .HasIndex(d => new { d.AnoLetivoId, d.Data })
+            .HasIndex(d => new { d.AnoLetivoId, d.Data, d.Segmento })
             .IsUnique();
 
         // Índice único: um relato por professor/turma/dia
