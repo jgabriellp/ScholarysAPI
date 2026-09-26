@@ -29,7 +29,7 @@ public class DiarioService
     public async Task<DiarioMaternalDto?> GetDiarioMaternalAsync(int alunoId, int anoLetivoId)
     {
         var aluno = await _alunoRepository.GetByIdAsync(alunoId);
-        if (aluno == null) return null;
+        if (aluno == null || aluno.Turma?.Segmento != SegmentoEnum.Maternal) return null;
 
         var frequenciaGrid = await MontarGridFrequenciaAsync(alunoId, aluno.TurmaId, anoLetivoId);
 
@@ -49,11 +49,11 @@ public class DiarioService
     public async Task<DiarioFundamentalDto?> GetDiarioFundamentalAsync(int alunoId, int anoLetivoId)
     {
         var aluno = await _alunoRepository.GetByIdAsync(alunoId);
-        if (aluno == null) return null;
+        if (aluno == null || aluno.Turma?.Segmento != SegmentoEnum.Fundamental) return null;
 
         var frequenciaGrid = await MontarGridFrequenciaAsync(alunoId, aluno.TurmaId, anoLetivoId);
 
-        var disciplinas = await _disciplinaRepository.GetAllAsync(1, 100);
+        var disciplinas = await _disciplinaRepository.GetAllAsync(1, 100, SegmentoEnum.Fundamental);
         var notas = (await _notaRepository.GetByAlunoAsync(alunoId, anoLetivoId)).ToList();
 
         var notasPorDisciplina = disciplinas.Data.Select(d =>
@@ -101,7 +101,7 @@ public class DiarioService
                 u4, u5, u6, media2Sem,
                 mediaAnual, rec, mediaFinal, resultado
             );
-        });
+        }).ToList();
 
         // Resultado geral: reprovado se qualquer disciplina reprovada
         var resultadoGeral = notasPorDisciplina.Any(n => n.Resultado == "Reprovado")
