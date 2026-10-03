@@ -39,11 +39,27 @@ public class TurmaDisciplinaProfessorService
             TurmaId = dto.TurmaId,
             DisciplinaId = dto.DisciplinaId,
             ProfessorId = dto.ProfessorId,
-            AnoLetivoId = dto.AnoLetivoId
+            AnoLetivoId = dto.AnoLetivoId,
+            DiasSemana = NormalizarDiasSemana(dto.DiasSemana)
         };
 
         var created = await _repository.CreateAsync(entity);
         return Map(created);
+    }
+
+    public async Task<TurmaDisciplinaProfessorResponseDto?> UpdateAsync(int id, TurmaDisciplinaProfessorRequestDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null) return null;
+
+        entity.TurmaId = dto.TurmaId;
+        entity.DisciplinaId = dto.DisciplinaId;
+        entity.ProfessorId = dto.ProfessorId;
+        entity.AnoLetivoId = dto.AnoLetivoId;
+        entity.DiasSemana = NormalizarDiasSemana(dto.DiasSemana);
+
+        var updated = await _repository.UpdateAsync(entity);
+        return Map(updated);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -55,6 +71,16 @@ public class TurmaDisciplinaProfessorService
         return true;
     }
 
+    private static List<int> NormalizarDiasSemana(List<int>? dias)
+    {
+        if (dias == null) return [];
+
+        if (dias.Any(d => d < (int)DayOfWeek.Sunday || d > (int)DayOfWeek.Saturday))
+            throw new ArgumentException("Dia da semana inválido. Use 0 (domingo) a 6 (sábado).");
+
+        return dias.Distinct().Order().ToList();
+    }
+
     private static TurmaDisciplinaProfessorResponseDto Map(TurmaDisciplinaProfessor t) => new(
         t.Id,
         t.TurmaId,
@@ -64,6 +90,7 @@ public class TurmaDisciplinaProfessorService
         t.ProfessorId,
         t.Professor?.Nome ?? "",
         t.AnoLetivoId,
-        t.AnoLetivo?.Ano ?? 0
+        t.AnoLetivo?.Ano ?? 0,
+        t.DiasSemana
     );
 }

@@ -9,5 +9,6 @@ public record TurmaDisciplinaProfessorResponseDto(
     int ProfessorId,
     string ProfessorNome,
     int AnoLetivoId,
-    int AnoLetivo
+    int AnoLetivo,
+    List<int> DiasSemana
 );

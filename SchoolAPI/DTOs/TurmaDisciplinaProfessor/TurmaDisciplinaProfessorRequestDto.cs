@@ -4,5 +4,6 @@ public record TurmaDisciplinaProfessorRequestDto(
     int TurmaId,
     int DisciplinaId,
     int ProfessorId,
-    int AnoLetivoId
+    int AnoLetivoId,
+    List<int>? DiasSemana = null
 );

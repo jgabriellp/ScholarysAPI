@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/lima/Projetos .Net/schoolAPI/SchoolAPI/SchoolAPI.csproj": {}
+    "C:\\Projects\\Projetos .Net\\ScholarysAPI\\SchoolAPI\\SchoolAPI.csproj": {}
   },
   "projects": {
-    "/home/lima/Projetos .Net/schoolAPI/SchoolAPI/SchoolAPI.csproj": {
+    "C:\\Projects\\Projetos .Net\\ScholarysAPI\\SchoolAPI\\SchoolAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/lima/Projetos .Net/schoolAPI/SchoolAPI/SchoolAPI.csproj",
+        "projectUniqueName": "C:\\Projects\\Projetos .Net\\ScholarysAPI\\SchoolAPI\\SchoolAPI.csproj",
         "projectName": "SchoolAPI",
-        "projectPath": "/home/lima/Projetos .Net/schoolAPI/SchoolAPI/SchoolAPI.csproj",
-        "packagesPath": "/home/lima/.nuget/packages/",
-        "outputPath": "/home/lima/Projetos .Net/schoolAPI/SchoolAPI/obj/",
+        "projectPath": "C:\\Projects\\Projetos .Net\\ScholarysAPI\\SchoolAPI\\SchoolAPI.csproj",
+        "packagesPath": "C:\\Users\\Jogap\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\Projetos .Net\\ScholarysAPI\\SchoolAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/lima/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Jogap\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -93,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.424/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.425/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

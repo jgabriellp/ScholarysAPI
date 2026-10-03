@@ -19,9 +19,13 @@ public class DiaLetivoController : ControllerBase
     }
 
     [HttpGet("ano-letivo/{anoLetivoId}")]
-    public async Task<IActionResult> GetByAnoLetivo(int anoLetivoId, [FromQuery] SegmentoEnum? segmento = null)
+    public async Task<IActionResult> GetByAnoLetivo(
+        int anoLetivoId,
+        [FromQuery] SegmentoEnum? segmento = null,
+        [FromQuery] int? turmaId = null,
+        [FromQuery] int? professorId = null)
     {
-        var data = await _service.GetByAnoLetivoAsync(anoLetivoId, segmento);
+        var data = await _service.GetByAnoLetivoAsync(anoLetivoId, segmento, turmaId, professorId);
         return Ok(data);
     }
 

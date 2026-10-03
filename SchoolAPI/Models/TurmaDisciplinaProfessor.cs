@@ -16,4 +16,8 @@ public class TurmaDisciplinaProfessor
 
     public int AnoLetivoId { get; set; }
     public AnoLetivo AnoLetivo { get; set; } = null!;
+
+    // Dias da semana com aula (valores de DayOfWeek: 1 = segunda ... 5 = sexta).
+    // Vazio = aula em todos os dias letivos.
+    public List<int> DiasSemana { get; set; } = [];
 }

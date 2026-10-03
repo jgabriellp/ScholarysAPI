@@ -32,6 +32,11 @@ public class TurmaDisciplinaProfessorRepository : ITurmaDisciplinaProfessorRepos
             .Where(t => t.ProfessorId == professorId)
             .ToListAsync();
 
+    public async Task<IEnumerable<TurmaDisciplinaProfessor>> GetByTurmaEProfessorAsync(int turmaId, int professorId, int anoLetivoId)
+        => await _context.TurmaDisciplinaProfessores
+            .Where(t => t.TurmaId == turmaId && t.ProfessorId == professorId && t.AnoLetivoId == anoLetivoId)
+            .ToListAsync();
+
     public async Task<TurmaDisciplinaProfessor?> GetByIdAsync(int id)
         => await _context.TurmaDisciplinaProfessores
             .Include(t => t.Turma)
@@ -43,6 +48,13 @@ public class TurmaDisciplinaProfessorRepository : ITurmaDisciplinaProfessorRepos
     public async Task<TurmaDisciplinaProfessor> CreateAsync(TurmaDisciplinaProfessor turmaDisciplinaProfessor)
     {
         _context.TurmaDisciplinaProfessores.Add(turmaDisciplinaProfessor);
+        await _context.SaveChangesAsync();
+        return (await GetByIdAsync(turmaDisciplinaProfessor.Id))!;
+    }
+
+    public async Task<TurmaDisciplinaProfessor> UpdateAsync(TurmaDisciplinaProfessor turmaDisciplinaProfessor)
+    {
+        _context.TurmaDisciplinaProfessores.Update(turmaDisciplinaProfessor);
         await _context.SaveChangesAsync();
         return (await GetByIdAsync(turmaDisciplinaProfessor.Id))!;
     }
