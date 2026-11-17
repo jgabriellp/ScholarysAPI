@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolAPI.Data;
+using SchoolAPI.Helpers;
 using SchoolAPI.Models;
 using SchoolAPI.Repositories.Interfaces;
 
@@ -48,12 +49,31 @@ public class AlunoRepository : IAlunoRepository
             .Include(a => a.User)
             .FirstOrDefaultAsync(a => a.Id == id && a.Ativo);
 
-    public async Task<Aluno?> GetByUsuarioAsync(int userId)
-        => await _context.Alunos
+    // Um mesmo usuário pode ter um registro de Aluno por ano letivo (renovação de matrícula).
+    // Sem anoLetivoId, devolve o registro do ano corrente (ver Helpers/AnoCorrente).
+    public async Task<Aluno?> GetByUsuarioAsync(int userId, int? anoLetivoId = null)
+    {
+        var query = _context.Alunos
             .Include(a => a.Turma)
             .Include(a => a.AnoLetivo)
             .Include(a => a.User)
-            .FirstOrDefaultAsync(a => a.UserId == userId && a.Ativo);
+            .Where(a => a.UserId == userId && a.Ativo);
+
+        if (anoLetivoId.HasValue)
+            return await query.FirstOrDefaultAsync(a => a.AnoLetivoId == anoLetivoId.Value);
+
+        var anoAtual = AnoCorrente.AnoAtual();
+        return await query
+            .OrderBy(a => a.AnoLetivo.Ano <= anoAtual ? anoAtual - a.AnoLetivo.Ano : a.AnoLetivo.Ano)
+            .FirstOrDefaultAsync();
+    }
+
+    // Considera também registros excluídos (soft delete), pois o índice único (UserId, AnoLetivoId) os inclui.
+    public async Task<bool> ExisteParaUsuarioNoAnoAsync(int userId, int anoLetivoId, int? ignorarAlunoId = null)
+        => await _context.Alunos.AnyAsync(a =>
+            a.UserId == userId &&
+            a.AnoLetivoId == anoLetivoId &&
+            (ignorarAlunoId == null || a.Id != ignorarAlunoId));
 
     public async Task<Aluno> CreateAsync(Aluno aluno)
     {

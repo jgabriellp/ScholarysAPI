@@ -4,5 +4,5 @@ namespace SchoolAPI.Repositories.Interfaces;
 
 public interface IDashboardRepository
 {
-    Task<DashboardResponseDto> GetDashboardInfoAsync();
+    Task<DashboardResponseDto> GetDashboardInfoAsync(int? anoLetivoId);
 }

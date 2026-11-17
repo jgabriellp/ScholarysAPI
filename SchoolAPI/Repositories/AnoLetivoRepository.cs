@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolAPI.Data;
+using SchoolAPI.Helpers;
 using SchoolAPI.Models;
 using SchoolAPI.Repositories.Interfaces;
 
@@ -30,8 +31,15 @@ public class AnoLetivoRepository : IAnoLetivoRepository
     public async Task<AnoLetivo?> GetByIdAsync(int id)
         => await _context.AnosLetivos.FirstOrDefaultAsync(a => a.Id == id && a.Ativo);
 
+    // "Ativo" aqui = ano corrente (ver Helpers/AnoCorrente). O campo Ativo do model significa "não excluído".
     public async Task<AnoLetivo?> GetAtivoAsync()
-        => await _context.AnosLetivos.FirstOrDefaultAsync(a => a.Ativo);
+    {
+        var anoAtual = AnoCorrente.AnoAtual();
+        return await _context.AnosLetivos
+            .Where(a => a.Ativo)
+            .OrderBy(a => a.Ano <= anoAtual ? anoAtual - a.Ano : a.Ano)
+            .FirstOrDefaultAsync();
+    }
 
     public async Task<AnoLetivo> CreateAsync(AnoLetivo anoLetivo)
     {

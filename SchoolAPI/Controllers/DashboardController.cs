@@ -17,9 +17,9 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetDashboardInfo()
+    public async Task<IActionResult> GetDashboardInfo([FromQuery] int? anoLetivoId)
     {
-        var data = await _service.GetDashboardInfoAsync();
+        var data = await _service.GetDashboardInfoAsync(anoLetivoId);
         return Ok(data);
     }
 }

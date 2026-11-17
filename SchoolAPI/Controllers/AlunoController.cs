@@ -35,7 +35,7 @@ public class AlunoController : ControllerBase
     }
 
     [HttpGet("usuario/{userId}")]
-    public async Task<IActionResult> GetByUsuario(int userId)
+    public async Task<IActionResult> GetByUsuario(int userId, [FromQuery] int? anoLetivoId)
     {
         var callerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var callerRole = User.FindFirstValue(ClaimTypes.Role);
@@ -44,7 +44,7 @@ public class AlunoController : ControllerBase
         if (!isAdmin && callerId != userId.ToString())
             return Forbid();
 
-        var aluno = await _service.GetByUsuarioAsync(userId);
+        var aluno = await _service.GetByUsuarioAsync(userId, anoLetivoId);
         if (aluno == null) return NotFound();
         return Ok(aluno);
     }
@@ -61,17 +61,31 @@ public class AlunoController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] AlunoRequestDto dto)
     {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] AlunoRequestDto dto)
     {
-        var updated = await _service.UpdateAsync(id, dto);
-        if (updated == null) return NotFound();
-        return Ok(updated);
+        try
+        {
+            var updated = await _service.UpdateAsync(id, dto);
+            if (updated == null) return NotFound();
+            return Ok(updated);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]

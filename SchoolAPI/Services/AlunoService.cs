@@ -7,10 +7,12 @@ namespace SchoolAPI.Services;
 public class AlunoService
 {
     private readonly IAlunoRepository _repository;
+    private readonly ITurmaRepository _turmaRepository;
 
-    public AlunoService(IAlunoRepository repository)
+    public AlunoService(IAlunoRepository repository, ITurmaRepository turmaRepository)
     {
         _repository = repository;
+        _turmaRepository = turmaRepository;
     }
 
     public async Task<(IEnumerable<AlunoResponseDto> Data, int Total)> GetAllAsync(int page, int pageSize)
@@ -33,15 +35,17 @@ public class AlunoService
         return Map(aluno);
     }
 
-    public async Task<AlunoResponseDto?> GetByUsuarioAsync(int userId)
+    public async Task<AlunoResponseDto?> GetByUsuarioAsync(int userId, int? anoLetivoId = null)
     {
-        var aluno = await _repository.GetByUsuarioAsync(userId);
+        var aluno = await _repository.GetByUsuarioAsync(userId, anoLetivoId);
         if (aluno == null) return null;
         return Map(aluno);
     }
 
     public async Task<AlunoResponseDto> CreateAsync(AlunoRequestDto dto)
     {
+        await ValidarAsync(dto, alunoId: null);
+
         var aluno = new Aluno
         {
             Nome = dto.Nome,
@@ -62,6 +66,8 @@ public class AlunoService
         var aluno = await _repository.GetByIdAsync(id);
         if (aluno == null) return null;
 
+        await ValidarAsync(dto, alunoId: id);
+
         aluno.Nome = dto.Nome;
         aluno.NumeroChamada = dto.NumeroChamada;
         aluno.DataNascimento = dto.DataNascimento;
@@ -80,6 +86,21 @@ public class AlunoService
 
         await _repository.DeleteAsync(aluno);
         return true;
+    }
+
+    // Garante que turma e ano letivo batem e que o usuário não tem dois registros no mesmo ano.
+    private async Task ValidarAsync(AlunoRequestDto dto, int? alunoId)
+    {
+        var turma = await _turmaRepository.GetByIdAsync(dto.TurmaId)
+            ?? throw new ArgumentException("Turma não encontrada.");
+
+        if (turma.AnoLetivoId != dto.AnoLetivoId)
+            throw new ArgumentException(
+                $"A turma {turma.Nome} pertence ao ano letivo {turma.AnoLetivo?.Ano}. Selecione o mesmo ano letivo da turma.");
+
+        if (await _repository.ExisteParaUsuarioNoAnoAsync(dto.UserId, dto.AnoLetivoId, alunoId))
+            throw new ArgumentException(
+                "Este usuário já possui um cadastro de aluno neste ano letivo.");
     }
 
     private static AlunoResponseDto Map(Aluno a) => new(

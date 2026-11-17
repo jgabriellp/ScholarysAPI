@@ -15,10 +15,13 @@ public class DashboardRepository : IDashboardRepository
         _context = context;
     }
 
-    public async Task<DashboardResponseDto> GetDashboardInfoAsync()
+    // Contagens de turmas/alunos restritas a um ano letivo (antes somava todos os anos cadastrados).
+    public async Task<DashboardResponseDto> GetDashboardInfoAsync(int? anoLetivoId)
     {
-        var turmasCount = await _context.Turmas.CountAsync(t => t.AnoLetivo.Ativo == true);
-        var alunosCount = await _context.Alunos.CountAsync(a => a.AnoLetivo.Ativo == true);
+        var turmasCount = anoLetivoId == null ? 0
+            : await _context.Turmas.CountAsync(t => t.AnoLetivoId == anoLetivoId);
+        var alunosCount = anoLetivoId == null ? 0
+            : await _context.Alunos.CountAsync(a => a.AnoLetivoId == anoLetivoId);
         var disciplinasCount = await _context.Disciplinas.CountAsync(d => d.Ativo);
         var professoresCount = await _context.Users.CountAsync(u => u.Ativo && u.Role == RoleEnum.Professor);
 
